@@ -1,10 +1,7 @@
 import { ResumeSection as ResumeSectionType, ResumeItem } from "@/types/resume";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface ResumeSectionProps {
   section: ResumeSectionType;
-  onAddItem?: (sectionId: string) => void;
 }
 
 const ResumeItemEntry = ({ item }: { item: ResumeItem }) => {
@@ -61,23 +58,13 @@ const ResumeItemEntry = ({ item }: { item: ResumeItem }) => {
   );
 };
 
-export const ResumeSection = ({ section, onAddItem }: ResumeSectionProps) => {
+export const ResumeSection = ({ section }: ResumeSectionProps) => {
   return (
     <section className="mb-5 animate-fade-in">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="resume-section-title text-sm font-bold border-b-2 border-resume-section-title pb-1">
+      <div className="mb-3">
+        <h3 className="resume-section-title text-base font-bold pb-1 border-b border-resume-text">
           {section.title}
         </h3>
-        {onAddItem && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onAddItem(section.id)}
-            className="no-print h-7 px-2 text-muted-foreground hover:text-primary"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-        )}
       </div>
       <div className="space-y-4">
         {section.items.map((item, index) => (

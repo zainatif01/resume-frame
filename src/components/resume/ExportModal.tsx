@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { FileText, FileIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
 import { saveAs } from "file-saver";
@@ -22,37 +21,114 @@ interface ExportModalProps {
   resumeRef: React.RefObject<HTMLDivElement>;
 }
 
-export const ExportModal = ({ open, onOpenChange, resumeData, resumeRef }: ExportModalProps) => {
+export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps) => {
   const [exporting, setExporting] = useState<"pdf" | "docx" | null>(null);
 
   const exportToPDF = async () => {
-    if (!resumeRef.current) return;
-    
     setExporting("pdf");
     try {
-      const element = resumeRef.current;
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      });
-      
-      const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
         format: "a4",
       });
-      
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 0;
-      
-      pdf.addImage(imgData, "PNG", imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 20;
+      const contentWidth = pageWidth - margin * 2;
+      let yPosition = margin;
+
+      // Set font
+      pdf.setFont("times", "normal");
+
+      // Name - bold, larger
+      pdf.setFontSize(18);
+      pdf.setFont("times", "bold");
+      pdf.text(resumeData.name, margin, yPosition);
+      yPosition += 8;
+
+      // Contact info on one line with vertical bars
+      pdf.setFontSize(10);
+      pdf.setFont("times", "normal");
+      const contactParts = [
+        resumeData.contact.email,
+        resumeData.contact.phone,
+        resumeData.contact.location,
+      ].filter(Boolean);
+      pdf.text(contactParts.join(" | "), margin, yPosition);
+      yPosition += 10;
+
+      // Sections
+      for (const section of resumeData.sections) {
+        // Section heading - uppercase, bold, slightly larger
+        pdf.setFontSize(11);
+        pdf.setFont("times", "bold");
+        pdf.text(section.title.toUpperCase(), margin, yPosition);
+        
+        // Line under heading extending to right margin
+        yPosition += 1;
+        pdf.setLineWidth(0.3);
+        pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+        yPosition += 5;
+
+        // Items
+        pdf.setFontSize(10);
+        for (const item of section.items) {
+          if (item.type === "paragraph" && item.content) {
+            pdf.setFont("times", "normal");
+            const lines = pdf.splitTextToSize(item.content, contentWidth);
+            pdf.text(lines, margin, yPosition);
+            yPosition += lines.length * 4 + 3;
+          } else {
+            // Bold title and date
+            if (item.boldTitle || item.boldDate) {
+              pdf.setFont("times", "bold");
+              if (item.boldTitle) {
+                pdf.text(item.boldTitle, margin, yPosition);
+              }
+              if (item.boldDate) {
+                const dateWidth = pdf.getTextWidth(item.boldDate);
+                pdf.text(item.boldDate, pageWidth - margin - dateWidth, yPosition);
+              }
+              yPosition += 4;
+            }
+
+            // Secondary title and text
+            if (item.secondaryTitle || item.secondaryText) {
+              pdf.setFont("times", "italic");
+              if (item.secondaryTitle) {
+                pdf.text(item.secondaryTitle, margin, yPosition);
+              }
+              if (item.secondaryText) {
+                pdf.setFont("times", "normal");
+                const textWidth = pdf.getTextWidth(item.secondaryText);
+                pdf.text(item.secondaryText, pageWidth - margin - textWidth, yPosition);
+              }
+              yPosition += 4;
+            }
+
+            // Bullet points
+            if (item.bullets && item.bullets.length > 0) {
+              pdf.setFont("times", "normal");
+              for (const bullet of item.bullets) {
+                const bulletText = `• ${bullet}`;
+                const lines = pdf.splitTextToSize(bulletText, contentWidth - 5);
+                pdf.text(lines, margin + 3, yPosition);
+                yPosition += lines.length * 4;
+              }
+            }
+            yPosition += 2;
+          }
+
+          // Check for page break
+          if (yPosition > pdf.internal.pageSize.getHeight() - margin) {
+            pdf.addPage();
+            yPosition = margin;
+          }
+        }
+        yPosition += 3;
+      }
+
       pdf.save(`${resumeData.name.replace(/\s+/g, "_")}_Resume.pdf`);
       
       toast.success("PDF exported successfully!");
@@ -70,22 +146,23 @@ export const ExportModal = ({ open, onOpenChange, resumeData, resumeRef }: Expor
     try {
       const children: Paragraph[] = [];
 
-      // Name
+      // Name - left aligned, bold
       children.push(
         new Paragraph({
           children: [
             new TextRun({
               text: resumeData.name,
               bold: true,
-              size: 48,
+              size: 36,
+              font: "Times New Roman",
             }),
           ],
-          alignment: AlignmentType.CENTER,
+          alignment: AlignmentType.LEFT,
           spacing: { after: 100 },
         })
       );
 
-      // Contact
+      // Contact on one line with vertical bars
       const contactParts = [
         resumeData.contact.email,
         resumeData.contact.phone,
@@ -98,9 +175,10 @@ export const ExportModal = ({ open, onOpenChange, resumeData, resumeRef }: Expor
             new TextRun({
               text: contactParts.join(" | "),
               size: 20,
+              font: "Times New Roman",
             }),
           ],
-          alignment: AlignmentType.CENTER,
+          alignment: AlignmentType.LEFT,
           spacing: { after: 300 },
         })
       );
@@ -109,9 +187,24 @@ export const ExportModal = ({ open, onOpenChange, resumeData, resumeRef }: Expor
       for (const section of resumeData.sections) {
         children.push(
           new Paragraph({
-            text: section.title,
+            children: [
+              new TextRun({
+                text: section.title.toUpperCase(),
+                bold: true,
+                size: 22,
+                font: "Times New Roman",
+              }),
+            ],
             heading: HeadingLevel.HEADING_2,
             spacing: { before: 300, after: 100 },
+            border: {
+              bottom: {
+                color: "000000",
+                size: 6,
+                style: "single",
+                space: 1,
+              },
+            },
           })
         );
 
@@ -119,7 +212,7 @@ export const ExportModal = ({ open, onOpenChange, resumeData, resumeRef }: Expor
           if (item.type === "paragraph" && item.content) {
             children.push(
               new Paragraph({
-                children: [new TextRun({ text: item.content, size: 22 })],
+                children: [new TextRun({ text: item.content, size: 20, font: "Times New Roman" })],
                 spacing: { after: 100 },
               })
             );
@@ -127,11 +220,11 @@ export const ExportModal = ({ open, onOpenChange, resumeData, resumeRef }: Expor
             if (item.boldTitle || item.boldDate) {
               const titleRuns: TextRun[] = [];
               if (item.boldTitle) {
-                titleRuns.push(new TextRun({ text: item.boldTitle, bold: true, size: 24 }));
+                titleRuns.push(new TextRun({ text: item.boldTitle, bold: true, size: 22, font: "Times New Roman" }));
               }
               if (item.boldDate) {
-                if (item.boldTitle) titleRuns.push(new TextRun({ text: "\t\t\t\t" }));
-                titleRuns.push(new TextRun({ text: item.boldDate, bold: true, size: 24 }));
+                if (item.boldTitle) titleRuns.push(new TextRun({ text: "\t\t\t\t", font: "Times New Roman" }));
+                titleRuns.push(new TextRun({ text: item.boldDate, bold: true, size: 22, font: "Times New Roman" }));
               }
               children.push(new Paragraph({ children: titleRuns, spacing: { before: 150 } }));
             }
@@ -139,11 +232,11 @@ export const ExportModal = ({ open, onOpenChange, resumeData, resumeRef }: Expor
             if (item.secondaryTitle || item.secondaryText) {
               const secondaryRuns: TextRun[] = [];
               if (item.secondaryTitle) {
-                secondaryRuns.push(new TextRun({ text: item.secondaryTitle, italics: true, size: 22 }));
+                secondaryRuns.push(new TextRun({ text: item.secondaryTitle, italics: true, size: 20, font: "Times New Roman" }));
               }
               if (item.secondaryText) {
-                if (item.secondaryTitle) secondaryRuns.push(new TextRun({ text: "\t\t\t" }));
-                secondaryRuns.push(new TextRun({ text: item.secondaryText, size: 22 }));
+                if (item.secondaryTitle) secondaryRuns.push(new TextRun({ text: "\t\t\t", font: "Times New Roman" }));
+                secondaryRuns.push(new TextRun({ text: item.secondaryText, size: 20, font: "Times New Roman" }));
               }
               children.push(new Paragraph({ children: secondaryRuns }));
             }
@@ -152,7 +245,7 @@ export const ExportModal = ({ open, onOpenChange, resumeData, resumeRef }: Expor
               for (const bullet of item.bullets) {
                 children.push(
                   new Paragraph({
-                    children: [new TextRun({ text: bullet, size: 22 })],
+                    children: [new TextRun({ text: bullet, size: 20, font: "Times New Roman" })],
                     bullet: { level: 0 },
                     spacing: { after: 50 },
                   })

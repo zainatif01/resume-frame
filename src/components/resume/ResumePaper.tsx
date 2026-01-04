@@ -5,15 +5,14 @@ import { ResumeSection } from "./ResumeSection";
 
 interface ResumePaperProps {
   data: ResumeData;
-  onAddItem?: (sectionId: string) => void;
 }
 
 export const ResumePaper = forwardRef<HTMLDivElement, ResumePaperProps>(
-  ({ data, onAddItem }, ref) => {
+  ({ data }, ref) => {
     return (
       <div
         ref={ref}
-        className="resume-paper w-full max-w-[210mm] mx-auto aspect-[1/1.414] p-6 sm:p-8 md:p-12 rounded-sm overflow-auto"
+        className="resume-paper w-full max-w-[210mm] mx-auto aspect-[1/1.414] p-8 sm:p-10 md:p-12 rounded-sm overflow-auto font-serif"
         style={{
           minHeight: "auto",
         }}
@@ -24,7 +23,6 @@ export const ResumePaper = forwardRef<HTMLDivElement, ResumePaperProps>(
           <ResumeSection
             key={section.id}
             section={section}
-            onAddItem={onAddItem}
           />
         ))}
       </div>
