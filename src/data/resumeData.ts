@@ -13,7 +13,7 @@ const resumeData: ResumeData = {
       title: "SUMMARY",
       items: [
         {
-          paragraph: "I am a Front-End Developer with 2+ years of experience building clean, responsive, and user-friendly web interfaces. Specializing in TypeScript, HTML5, CSS3, and Tailwind CSS with expertise in Next.js development. I have focused on creating high-performance, accessible web applications with modern UI/UX principles."
+          paragraph: "I am a Front-End Developer with 4+ years of experience building clean, responsive, and user-friendly web interfaces. Specializing in TypeScript, HTML5, CSS3, and Tailwind CSS with expertise in Next.js development. I have focused on creating high-performance, accessible web applications with modern UI/UX principles across international markets."
         }
       ]
     },
@@ -21,6 +21,19 @@ const resumeData: ResumeData = {
       id: "experience",
       title: "WORK EXPERIENCE",
       items: [
+        {
+          paragraph: "",
+          boldLeft: "Skyline Digital Ltd.",
+          boldRight: "03/2024 – Present",
+          italicLeft: "Front-End Developer, London, UK",
+          italicRight: "",
+          bullets: [
+            "Lead front-end development for UK-based fintech platform using Next.js 14 and TypeScript",
+            "Architected and implemented scalable design system with Tailwind CSS and Storybook, reducing UI bugs by 40%",
+            "Collaborated with cross-functional teams in Agile environment to deliver features for European market compliance",
+            "Optimized application performance achieving 95+ Lighthouse scores for core web vitals"
+          ]
+        },
         {
           paragraph: "",
           boldLeft: "TechNova Solutions Inc.",
@@ -43,6 +56,30 @@ const resumeData: ResumeData = {
             "Built responsive client websites using HTML5, CSS3, and JavaScript for multiple US-based clients",
             "Implemented Tailwind CSS frameworks across 15+ client projects, ensuring consistent branding",
             "Managed version control using Git/GitHub and deployed projects to Vercel hosting platform"
+          ]
+        },
+        {
+          paragraph: "",
+          boldLeft: "CodeCraft Solutions",
+          boldRight: "06/2022 – 12/2022",
+          italicLeft: "Front-End Developer (Remote)",
+          italicRight: "",
+          bullets: [
+            "Developed responsive e-commerce platforms using React.js and TypeScript for international clients",
+            "Integrated REST APIs and implemented state management using React Context API",
+            "Conducted code reviews and mentored junior developers in front-end best practices"
+          ]
+        },
+        {
+          paragraph: "",
+          boldLeft: "WebInnovate Studios",
+          boldRight: "09/2021 – 05/2022",
+          italicLeft: "Web Developer Intern, Lahore, Pakistan",
+          italicRight: "",
+          bullets: [
+            "Assisted in building and maintaining client websites using HTML5, CSS3, and JavaScript",
+            "Participated in agile development cycles and daily stand-up meetings",
+            "Gained foundational experience in responsive design and cross-browser compatibility"
           ]
         }
       ]
@@ -76,8 +113,9 @@ const resumeData: ResumeData = {
         {
           paragraph: "",
           bullets: [
-            "**Technical Skills:** TypeScript/JavaScript, HTML5, CSS3/Tailwind CSS, Next.js, Vercel, Git & GitHub",
-            "**Languages:** English (Fluent B2), Urdu (Native C2)"
+            "**Technical Skills:** TypeScript/JavaScript, HTML5, CSS3/Tailwind CSS, Next.js, React.js, Storybook, Vercel, Git & GitHub, REST APIs",
+            "**Certifications:** Next.js 14 Certification (Vercel), Advanced TypeScript (Frontend Masters)",
+            "**Languages:** English (Professional Proficiency C1), Urdu (Native C2)"
           ]
         }
       ]
