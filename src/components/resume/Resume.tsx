@@ -46,22 +46,22 @@ const ResumeItemEntry = ({ item }: { item: ResumeItem }) => {
   return (
     <div className="leading-relaxed">
       {hasParagraph && (
-        <p className="text-sm text-resume-text">{item.paragraph}</p>
+        <p className="text-sm text-resume-text mb-0.5">{item.paragraph}</p>
       )}
       {hasBoldLine && (
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mt-0.5">
           {item.boldLeft && <h4 className="font-semibold text-resume-text">{item.boldLeft}</h4>}
           {item.boldRight && <span className="font-semibold text-sm text-resume-text whitespace-nowrap">{item.boldRight}</span>}
         </div>
       )}
       {hasItalicLine && (
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mt-0.5">
           {item.italicLeft && <span className="text-sm text-resume-text-secondary italic">{item.italicLeft}</span>}
           {item.italicRight && <span className="text-sm text-resume-text-secondary">{item.italicRight}</span>}
         </div>
       )}
       {hasBullets && (
-        <ul className="list-outside ml-5 mt-1" style={{ listStyleType: 'disc' }}>
+        <ul className="list-outside ml-5 mt-0.5 space-y-0.5" style={{ listStyleType: 'disc' }}>
           {item.bullets?.map((bullet, idx) => (
             <li key={idx} className="text-sm text-resume-text marker:text-resume-text marker:text-lg">
               {parseBoldText(bullet)}
@@ -158,7 +158,7 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
             pdf.setFont("times", "normal");
             const lines = pdf.splitTextToSize(item.paragraph, contentWidth);
             pdf.text(lines, margin, yPosition);
-            yPosition += lines.length * 4 + 3;
+            yPosition += lines.length * 4 + 4;
           }
 
           if (item.boldLeft || item.boldRight) {
@@ -168,7 +168,7 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
               const dateWidth = pdf.getTextWidth(item.boldRight);
               pdf.text(item.boldRight, pageWidth - margin - dateWidth, yPosition);
             }
-            yPosition += 4;
+            yPosition += 5;
           }
 
           if (item.italicLeft || item.italicRight) {
@@ -179,7 +179,7 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
               const textWidth = pdf.getTextWidth(item.italicRight);
               pdf.text(item.italicRight, pageWidth - margin - textWidth, yPosition);
             }
-            yPosition += 4;
+            yPosition += 5;
           }
 
           if (item.bullets && item.bullets.length > 0) {
@@ -231,9 +231,10 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
                   pdf.setFont("times", "normal");
                   pdf.text(line, lineIdx === 0 ? margin + 3 : margin + 3, yPosition);
                 }
-                yPosition += 4;
+                yPosition += 4.5;
               }
             }
+            yPosition += 1;
           }
           yPosition += 2;
 
