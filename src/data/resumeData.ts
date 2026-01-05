@@ -22,11 +22,11 @@ const resumeData: ResumeData = {
       title: "WORK EXPERIENCE",
       items: [
         {
-          paragraph: "",
           boldLeft: "Skyline Digital Ltd.",
           boldRight: "03/2024 – Present",
           italicLeft: "Front-End Developer, London, UK",
           italicRight: "",
+          paragraph: "",
           bullets: [
             "Lead front-end development for UK-based fintech platform using Next.js 14 and TypeScript",
             "Architected and implemented scalable design system with Tailwind CSS and Storybook, reducing UI bugs by 40%",
@@ -35,11 +35,11 @@ const resumeData: ResumeData = {
           ]
         },
         {
-          paragraph: "",
           boldLeft: "TechNova Solutions Inc.",
           boldRight: "08/2023 – 02/2024",
           italicLeft: "Front-End Developer, San Francisco, CA",
           italicRight: "",
+          paragraph: "",
           bullets: [
             "Developed and maintained responsive web applications using Next.js and TypeScript for US-based SaaS platform",
             "Implemented custom UI components with Tailwind CSS, improving development efficiency by 30%",
@@ -47,11 +47,11 @@ const resumeData: ResumeData = {
           ]
         },
         {
-          paragraph: "",
           boldLeft: "DigitalFlow Agency",
           boldRight: "01/2023 – 04/2023",
           italicLeft: "Junior Front-End Developer, New York, NY",
           italicRight: "",
+          paragraph: "",
           bullets: [
             "Built responsive client websites using HTML5, CSS3, and JavaScript for multiple US-based clients",
             "Implemented Tailwind CSS frameworks across 15+ client projects, ensuring consistent branding",
@@ -59,11 +59,11 @@ const resumeData: ResumeData = {
           ]
         },
         {
-          paragraph: "",
           boldLeft: "CodeCraft Solutions",
           boldRight: "06/2022 – 12/2022",
           italicLeft: "Front-End Developer (Remote)",
           italicRight: "",
+          paragraph: "",
           bullets: [
             "Developed responsive e-commerce platforms using React.js and TypeScript for international clients",
             "Integrated REST APIs and implemented state management using React Context API",
@@ -71,11 +71,11 @@ const resumeData: ResumeData = {
           ]
         },
         {
-          paragraph: "",
           boldLeft: "WebInnovate Studios",
           boldRight: "09/2021 – 05/2022",
           italicLeft: "Web Developer Intern, Lahore, Pakistan",
           italicRight: "",
+          paragraph: "",
           bullets: [
             "Assisted in building and maintaining client websites using HTML5, CSS3, and JavaScript",
             "Participated in agile development cycles and daily stand-up meetings",
@@ -89,11 +89,11 @@ const resumeData: ResumeData = {
       title: "PROJECTS",
       items: [
         {
-          paragraph: "",
           boldLeft: "FinDash Analytics Platform",
           boldRight: "Personal Project",
           italicLeft: "Next.js 14 • TypeScript • Tailwind CSS • Recharts",
           italicRight: "",
+          paragraph: "",
           bullets: [
             "Built a comprehensive financial dashboard for visualizing real-time market data and portfolio analytics",
             "Implemented server-side rendering for optimal SEO and initial load performance",
@@ -102,11 +102,11 @@ const resumeData: ResumeData = {
           ]
         },
         {
-          paragraph: "",
           boldLeft: "EcoTrack Sustainability App",
           boldRight: "Open Source Project",
           italicLeft: "React • TypeScript • Firebase • Material-UI",
           italicRight: "",
+          paragraph: "",
           bullets: [
             "Developed a carbon footprint tracking application with gamification elements to encourage sustainable habits",
             "Integrated Firebase for real-time data synchronization and user authentication",
@@ -115,11 +115,11 @@ const resumeData: ResumeData = {
           ]
         },
         {
-          paragraph: "",
           boldLeft: "DevConnect Developer Portfolio Platform",
           boldRight: "Freelance Project",
           italicLeft: "Next.js • Tailwind CSS • Vercel • GitHub API",
           italicRight: "",
+          paragraph: "",
           bullets: [
             "Created a customizable portfolio platform for developers with GitHub integration",
             "Implemented automated project showcase pulling live data from GitHub repositories",
@@ -134,19 +134,19 @@ const resumeData: ResumeData = {
       title: "EDUCATION",
       items: [
         {
-          paragraph: "",
           boldLeft: "FDC Faisal, Karachi",
           boldRight: "07/2025",
           italicLeft: "HSSC (Computer Science)",
           italicRight: "",
+          paragraph: "",
           bullets: []
         },
         {
-          paragraph: "",
           boldLeft: "University of Gujrat, Gujrat",
           boldRight: "Expected: 06/2029",
           italicLeft: "BS (Software Engineering)",
           italicRight: "",
+          paragraph: "",
           bullets: []
         }
       ]
