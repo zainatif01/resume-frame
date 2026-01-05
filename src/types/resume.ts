@@ -23,4 +23,5 @@ export interface ResumeData {
   name: string;
   contact: ResumeContact;
   sections: ResumeSection[];
+  copyright?: string;
 }
