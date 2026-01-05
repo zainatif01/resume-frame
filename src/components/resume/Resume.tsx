@@ -45,9 +45,6 @@ const ResumeItemEntry = ({ item }: { item: ResumeItem }) => {
 
   return (
     <div className="leading-relaxed">
-      {hasParagraph && (
-        <p className="text-sm text-resume-text">{item.paragraph}</p>
-      )}
       {hasBoldLine && (
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
           {item.boldLeft && <h4 className="font-semibold text-resume-text">{item.boldLeft}</h4>}
@@ -68,6 +65,9 @@ const ResumeItemEntry = ({ item }: { item: ResumeItem }) => {
             </li>
           ))}
         </ul>
+      )}
+      {hasParagraph && (
+        <p className="text-sm text-resume-text">{item.paragraph}</p>
       )}
     </div>
   );
@@ -174,19 +174,6 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
 
         pdf.setFontSize(10);
         for (const item of section.items) {
-          if (item.paragraph && item.paragraph.trim() !== "") {
-            pdf.setFont("times", "normal");
-            const lines = pdf.splitTextToSize(item.paragraph, contentWidth);
-            const paragraphHeight = lines.length * 4.5;
-            checkPageBreak(paragraphHeight);
-            
-            for (let i = 0; i < lines.length; i++) {
-              pdf.text(lines[i], margin, yPosition);
-              yPosition += 4.5; // Line spacing within paragraph
-            }
-            yPosition += 1; // Reduced spacing after paragraph
-          }
-
           if (item.boldLeft || item.boldRight) {
             checkPageBreak(5);
             pdf.setFont("times", "bold");
@@ -266,6 +253,20 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
             }
             yPosition += 1;
           }
+
+          if (item.paragraph && item.paragraph.trim() !== "") {
+            pdf.setFont("times", "normal");
+            const lines = pdf.splitTextToSize(item.paragraph, contentWidth);
+            const paragraphHeight = lines.length * 4.5;
+            checkPageBreak(paragraphHeight);
+            
+            for (let i = 0; i < lines.length; i++) {
+              pdf.text(lines[i], margin, yPosition);
+              yPosition += 4.5; // Line spacing within paragraph
+            }
+            yPosition += 1; // Reduced spacing after paragraph
+          }
+
           yPosition += 2;
         }
         yPosition += 2; // Reduced from 3 to 2 for less space before next section
@@ -316,15 +317,6 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
         );
 
         for (const item of section.items) {
-          if (item.paragraph && item.paragraph.trim() !== "") {
-            children.push(
-              new Paragraph({
-                children: [new TextRun({ text: item.paragraph, size: 20, font: "Times New Roman" })],
-                spacing: { after: 100 },
-              })
-            );
-          }
-
           if (item.boldLeft || item.boldRight) {
             const titleRuns: TextRun[] = [];
             if (item.boldLeft) titleRuns.push(new TextRun({ text: item.boldLeft, bold: true, size: 22, font: "Times New Roman" }));
@@ -376,6 +368,15 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
                 })
               );
             }
+          }
+
+          if (item.paragraph && item.paragraph.trim() !== "") {
+            children.push(
+              new Paragraph({
+                children: [new TextRun({ text: item.paragraph, size: 20, font: "Times New Roman" })],
+                spacing: { after: 100 },
+              })
+            );
           }
         }
       }
