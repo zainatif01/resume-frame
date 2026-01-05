@@ -46,24 +46,24 @@ const ResumeItemEntry = ({ item }: { item: ResumeItem }) => {
   return (
     <div className="leading-relaxed">
       {hasParagraph && (
-        <p className="text-sm text-resume-text mb-0.5">{item.paragraph}</p>
+        <p className="text-sm text-resume-text">{item.paragraph}</p>
       )}
       {hasBoldLine && (
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mt-0.5">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
           {item.boldLeft && <h4 className="font-semibold text-resume-text">{item.boldLeft}</h4>}
           {item.boldRight && <span className="font-semibold text-sm text-resume-text whitespace-nowrap">{item.boldRight}</span>}
         </div>
       )}
       {hasItalicLine && (
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mt-0.5">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
           {item.italicLeft && <span className="text-sm text-resume-text-secondary italic">{item.italicLeft}</span>}
           {item.italicRight && <span className="text-sm text-resume-text-secondary">{item.italicRight}</span>}
         </div>
       )}
       {hasBullets && (
-        <ul className="list-outside ml-5 mt-0.5 space-y-0.5" style={{ listStyleType: 'disc' }}>
+        <ul className="list-outside ml-5" style={{ listStyleType: 'disc' }}>
           {item.bullets?.map((bullet, idx) => (
-            <li key={idx} className="text-sm text-resume-text marker:text-resume-text marker:text-lg">
+            <li key={idx} className="text-sm text-resume-text marker:text-resume-text marker:text-sm">
               {parseBoldText(bullet)}
             </li>
           ))}
