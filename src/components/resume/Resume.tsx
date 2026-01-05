@@ -44,26 +44,26 @@ const ResumeItemEntry = ({ item }: { item: ResumeItem }) => {
   const hasParagraph = item.paragraph && item.paragraph.trim() !== "";
 
   return (
-    <div className="space-y-1">
+    <div className="leading-relaxed">
       {hasParagraph && (
-        <p className="text-sm leading-relaxed text-resume-text">{item.paragraph}</p>
+        <p className="text-sm text-resume-text">{item.paragraph}</p>
       )}
       {hasBoldLine && (
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-0.5">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
           {item.boldLeft && <h4 className="font-semibold text-resume-text">{item.boldLeft}</h4>}
           {item.boldRight && <span className="font-semibold text-sm text-resume-text whitespace-nowrap">{item.boldRight}</span>}
         </div>
       )}
       {hasItalicLine && (
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-0.5">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
           {item.italicLeft && <span className="text-sm text-resume-text-secondary italic">{item.italicLeft}</span>}
           {item.italicRight && <span className="text-sm text-resume-text-secondary">{item.italicRight}</span>}
         </div>
       )}
       {hasBullets && (
-        <ul className="list-outside ml-5 mt-2 space-y-1" style={{ listStyleType: 'disc' }}>
+        <ul className="list-outside ml-5 mt-1" style={{ listStyleType: 'disc' }}>
           {item.bullets?.map((bullet, idx) => (
-            <li key={idx} className="text-sm text-resume-text leading-relaxed marker:text-resume-text marker:text-lg">
+            <li key={idx} className="text-sm text-resume-text marker:text-resume-text marker:text-lg">
               {parseBoldText(bullet)}
             </li>
           ))}
@@ -94,16 +94,18 @@ export const ResumePaper = forwardRef<HTMLDivElement, { data: ResumeData }>(({ d
   return (
     <div
       ref={ref}
-      className="resume-paper w-full max-w-[210mm] mx-auto aspect-[1/1.414] p-8 sm:p-10 md:p-12 rounded-sm overflow-auto font-serif"
+      className="resume-paper w-full max-w-[210mm] mx-auto aspect-[1/1.414] p-8 sm:p-10 md:p-12 rounded-sm overflow-auto font-serif flex flex-col"
       style={{ minHeight: "auto" }}
     >
-      <ResumeHeader name={data.name} contact={data.contact} />
-      {data.sections.map((section) => (
-        <ResumeSection key={section.id} section={section} />
-      ))}
+      <div className="flex-1">
+        <ResumeHeader name={data.name} contact={data.contact} />
+        {data.sections.map((section) => (
+          <ResumeSection key={section.id} section={section} />
+        ))}
+      </div>
       {data.copyright && (
-        <footer className="mt-8 pt-4 border-t border-resume-border text-center">
-          <p className="text-xs text-resume-text-secondary">{data.copyright}</p>
+        <footer className="text-center mt-auto">
+          <p className="text-sm text-resume-text-secondary">{data.copyright}</p>
         </footer>
       )}
     </div>
