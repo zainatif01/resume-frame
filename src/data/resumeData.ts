@@ -97,12 +97,20 @@ const resumeData: ResumeData = {
       id: "education",
       title: "EDUCATION",
       items: [
+         {
+          boldLeft: "University of Gujrat, Gujrat",
+          boldRight: "06/2023",
+          italicLeft: "",
+          italicRight: "",
+          paragraph: "BS (Software Engineering)",
+          bullets: []
+        },
         {
           boldLeft: "FDC Faisal, Karachi",
-          boldRight: "07/2025",
-          italicLeft: "HSSC (Computer Science)",
+          boldRight: "07/2019",
+          italicLeft: "",
           italicRight: "",
-          paragraph: "",
+          paragraph: "HSSC (Computer Science)",
           bullets: []
         }
       ]
