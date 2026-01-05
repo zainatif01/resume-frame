@@ -104,14 +104,6 @@ const resumeData: ResumeData = {
           italicRight: "",
           paragraph: "",
           bullets: []
-        },
-        {
-          boldLeft: "University of Gujrat, Gujrat",
-          boldRight: "Expected: 06/2029",
-          italicLeft: "BS (Software Engineering)",
-          italicRight: "",
-          paragraph: "",
-          bullets: []
         }
       ]
     },
