@@ -89,25 +89,144 @@ const ResumeSection = ({ section }: { section: ResumeSectionType }) => {
   );
 };
 
-// === ResumePaper ===
+// === ResumePaper (multi-page web display) ===
+// Constants matching PDF layout for pagination calculation
+const PAGE_HEIGHT_MM = 297; // A4 height
+const MARGIN_MM = 20;
+const USABLE_HEIGHT_MM = PAGE_HEIGHT_MM - MARGIN_MM * 2; // 257mm usable
+
+// Approximate content heights in mm (matching PDF generation)
+const HEADER_HEIGHT_MM = 20; // name + contact
+const SECTION_TITLE_HEIGHT_MM = 12; // section title + line + spacing
+const BOLD_LINE_HEIGHT_MM = 5;
+const ITALIC_LINE_HEIGHT_MM = 5;
+const BULLET_LINE_HEIGHT_MM = 4.5;
+const PARAGRAPH_LINE_HEIGHT_MM = 4;
+const ITEM_SPACING_MM = 2;
+const SECTION_SPACING_MM = 3;
+
+// Calculate which page each section item belongs to
+const calculatePageBreaks = (data: ResumeData) => {
+  const pages: { startSection: number; startItem: number; endSection: number; endItem: number }[] = [];
+  let currentY = HEADER_HEIGHT_MM + 12; // After header
+  let currentPageStart = { section: 0, item: 0 };
+  
+  for (let sIdx = 0; sIdx < data.sections.length; sIdx++) {
+    const section = data.sections[sIdx];
+    currentY += SECTION_TITLE_HEIGHT_MM;
+    
+    for (let iIdx = 0; iIdx < section.items.length; iIdx++) {
+      const item = section.items[iIdx];
+      let itemHeight = 0;
+      
+      if (item.paragraph && item.paragraph.trim()) {
+        const lines = Math.ceil(item.paragraph.length / 90); // Approximate chars per line
+        itemHeight += lines * PARAGRAPH_LINE_HEIGHT_MM + 4;
+      }
+      if (item.boldLeft || item.boldRight) itemHeight += BOLD_LINE_HEIGHT_MM;
+      if (item.italicLeft || item.italicRight) itemHeight += ITALIC_LINE_HEIGHT_MM;
+      if (item.bullets) {
+        for (const bullet of item.bullets) {
+          const lines = Math.ceil((bullet.length + 2) / 85);
+          itemHeight += lines * BULLET_LINE_HEIGHT_MM;
+        }
+        itemHeight += 1;
+      }
+      itemHeight += ITEM_SPACING_MM;
+      
+      if (currentY + itemHeight > USABLE_HEIGHT_MM) {
+        // Page break needed before this item
+        pages.push({
+          startSection: currentPageStart.section,
+          startItem: currentPageStart.item,
+          endSection: sIdx,
+          endItem: iIdx - 1 < 0 ? (sIdx > 0 ? data.sections[sIdx - 1].items.length - 1 : 0) : iIdx - 1
+        });
+        currentPageStart = { section: sIdx, item: iIdx };
+        currentY = MARGIN_MM + itemHeight;
+      } else {
+        currentY += itemHeight;
+      }
+    }
+    currentY += SECTION_SPACING_MM;
+  }
+  
+  // Last page
+  pages.push({
+    startSection: currentPageStart.section,
+    startItem: currentPageStart.item,
+    endSection: data.sections.length - 1,
+    endItem: data.sections[data.sections.length - 1].items.length - 1
+  });
+  
+  return pages;
+};
+
 export const ResumePaper = forwardRef<HTMLDivElement, { data: ResumeData }>(({ data }, ref) => {
+  const pages = calculatePageBreaks(data);
+  
+  // Render content for a specific page range
+  const renderPageContent = (pageIndex: number) => {
+    const page = pages[pageIndex];
+    const content: JSX.Element[] = [];
+    
+    for (let sIdx = page.startSection; sIdx <= page.endSection; sIdx++) {
+      const section = data.sections[sIdx];
+      const startItem = sIdx === page.startSection ? page.startItem : 0;
+      const endItem = sIdx === page.endSection ? page.endItem : section.items.length - 1;
+      
+      // Only show section title if we're starting from item 0 or it's a new section on this page
+      const showTitle = startItem === 0 || sIdx > page.startSection;
+      
+      if (showTitle) {
+        content.push(
+          <section key={`section-${sIdx}`} className="mb-5 animate-fade-in">
+            <div className="mb-3">
+              <h3 className="resume-section-title text-base font-bold pb-1 border-b border-resume-text">{section.title}</h3>
+            </div>
+            <div className="space-y-4">
+              {section.items.slice(startItem, endItem + 1).map((item, index) => (
+                <ResumeItemEntry key={index} item={item} />
+              ))}
+            </div>
+          </section>
+        );
+      } else {
+        // Continue section without title
+        content.push(
+          <section key={`section-cont-${sIdx}`} className="mb-5">
+            <div className="space-y-4">
+              {section.items.slice(startItem, endItem + 1).map((item, index) => (
+                <ResumeItemEntry key={index} item={item} />
+              ))}
+            </div>
+          </section>
+        );
+      }
+    }
+    
+    return content;
+  };
+  
   return (
-    <div
-      ref={ref}
-      className="resume-paper w-full max-w-[210mm] mx-auto aspect-[1/1.414] p-8 sm:p-10 md:p-12 rounded-sm overflow-auto font-serif flex flex-col"
-      style={{ minHeight: "auto" }}
-    >
-      <div className="flex-1">
-        <ResumeHeader name={data.name} contact={data.contact} />
-        {data.sections.map((section) => (
-          <ResumeSection key={section.id} section={section} />
-        ))}
-      </div>
-      {data.copyright && (
-        <footer className="text-center mt-auto">
-          <p className="text-sm text-resume-text-secondary">{data.copyright}</p>
-        </footer>
-      )}
+    <div ref={ref} className="w-full max-w-[210mm] mx-auto font-serif">
+      {pages.map((_, pageIndex) => (
+        <div
+          key={pageIndex}
+          className="resume-paper w-full aspect-[1/1.414] p-8 sm:p-10 md:p-12 rounded-sm mb-6 flex flex-col"
+          style={{ minHeight: "auto" }}
+        >
+          <div className="flex-1">
+            {pageIndex === 0 && <ResumeHeader name={data.name} contact={data.contact} />}
+            {renderPageContent(pageIndex)}
+          </div>
+          {pageIndex === pages.length - 1 && data.copyright && (
+            <footer className="text-center mt-auto">
+              <p className="text-sm text-resume-text-secondary">{data.copyright}</p>
+            </footer>
+          )}
+        </div>
+      ))}
     </div>
   );
 });
@@ -128,40 +247,67 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
     try {
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 20;
+      const bottomMargin = 20; // Equal to top margin
       const contentWidth = pageWidth - margin * 2;
+      const maxY = pageHeight - bottomMargin; // Stop content before bottom margin
       let yPosition = margin;
 
+      // Check if we need a new page (with proper bottom margin)
+      const checkPageBreak = (neededHeight: number) => {
+        if (yPosition + neededHeight > maxY) {
+          pdf.addPage();
+          yPosition = margin;
+          return true;
+        }
+        return false;
+      };
+
+      // Header: Full name - 18pt
       pdf.setFont("times", "bold");
       pdf.setFontSize(18);
       pdf.text(resumeData.name, margin, yPosition);
       yPosition += 8;
 
+      // Contact info - 10pt
       pdf.setFontSize(10);
       pdf.setFont("times", "normal");
       const contactParts = [resumeData.contact.email, resumeData.contact.phone, resumeData.contact.location].filter(Boolean);
       pdf.text(contactParts.join(" | "), margin, yPosition);
-      yPosition += 12;
+      yPosition += 10;
 
       for (const section of resumeData.sections) {
+        // Check if section title fits
+        checkPageBreak(15);
+        
+        // Section title - 11pt bold
         pdf.setFontSize(11);
         pdf.setFont("times", "bold");
         pdf.text(section.title.toUpperCase(), margin, yPosition);
         yPosition += 4;
         pdf.setLineWidth(0.3);
         pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-        yPosition += 8;
+        yPosition += 6;
 
         pdf.setFontSize(10);
         for (const item of section.items) {
           if (item.paragraph && item.paragraph.trim() !== "") {
             pdf.setFont("times", "normal");
             const lines = pdf.splitTextToSize(item.paragraph, contentWidth);
-            pdf.text(lines, margin, yPosition);
-            yPosition += lines.length * 4 + 4;
+            // Increased line spacing for paragraphs (5.5 instead of 4)
+            const paragraphHeight = lines.length * 5.5;
+            checkPageBreak(paragraphHeight);
+            
+            for (let i = 0; i < lines.length; i++) {
+              pdf.text(lines[i], margin, yPosition);
+              yPosition += 5.5; // Increased line spacing within paragraph
+            }
+            yPosition += 1; // Reduced spacing after paragraph
           }
 
           if (item.boldLeft || item.boldRight) {
+            checkPageBreak(5);
             pdf.setFont("times", "bold");
             if (item.boldLeft) pdf.text(item.boldLeft, margin, yPosition);
             if (item.boldRight) {
@@ -172,6 +318,7 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
           }
 
           if (item.italicLeft || item.italicRight) {
+            checkPageBreak(5);
             pdf.setFont("times", "italic");
             if (item.italicLeft) pdf.text(item.italicLeft, margin, yPosition);
             if (item.italicRight) {
@@ -192,12 +339,14 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
               const bulletText = `• ${plainBullet}`;
               const lines = pdf.splitTextToSize(bulletText, contentWidth - 5);
               
+              // Check if bullet fits
+              checkPageBreak(lines.length * 4.5);
+              
               // Render with bold parts
-              let currentX = margin + 3;
               for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
                 const line = lines[lineIdx];
                 let remaining = line;
-                let xPos = lineIdx === 0 ? margin + 3 : margin + 3;
+                let xPos = margin + 3;
                 
                 // Check if line contains bold text
                 let hasBold = false;
@@ -229,7 +378,7 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
                 
                 if (!hasBold) {
                   pdf.setFont("times", "normal");
-                  pdf.text(line, lineIdx === 0 ? margin + 3 : margin + 3, yPosition);
+                  pdf.text(line, margin + 3, yPosition);
                 }
                 yPosition += 4.5;
               }
@@ -237,13 +386,8 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
             yPosition += 1;
           }
           yPosition += 2;
-
-          if (yPosition > pdf.internal.pageSize.getHeight() - margin) {
-            pdf.addPage();
-            yPosition = margin;
-          }
         }
-        yPosition += 3;
+        yPosition += 2; // Reduced from 3 to 2 for less space before next section
       }
 
       pdf.save(`${resumeData.name.replace(/\s+/g, "_")}_Resume.pdf`);
