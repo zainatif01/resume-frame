@@ -13,8 +13,7 @@ const resumeData: ResumeData = {
       title: "SUMMARY",
       items: [
         {
-          type: "paragraph",
-          content: "I am a Front-End Developer with 2+ years of experience building clean, responsive, and user-friendly web interfaces. Specializing in TypeScript, HTML5, CSS3, and Tailwind CSS with expertise in Next.js development. I have focused on creating high-performance, accessible web applications with modern UI/UX principles."
+          paragraph: "I am a Front-End Developer with 2+ years of experience building clean, responsive, and user-friendly web interfaces. Specializing in TypeScript, HTML5, CSS3, and Tailwind CSS with expertise in Next.js development. I have focused on creating high-performance, accessible web applications with modern UI/UX principles."
         }
       ]
     },
@@ -23,11 +22,11 @@ const resumeData: ResumeData = {
       title: "WORK EXPERIENCE",
       items: [
         {
-          type: "entry",
-          boldTitle: "TechNova Solutions Inc.",
-          boldDate: "08/2023 – 02/2024",
-          secondaryTitle: "Front-End Developer, San Francisco, CA",
-          secondaryText: "",
+          paragraph: "",
+          boldLeft: "TechNova Solutions Inc.",
+          boldRight: "08/2023 – 02/2024",
+          italicLeft: "Front-End Developer, San Francisco, CA",
+          italicRight: "",
           bullets: [
             "Developed and maintained responsive web applications using Next.js and TypeScript for US-based SaaS platform",
             "Implemented custom UI components with Tailwind CSS, improving development efficiency by 30%",
@@ -35,11 +34,11 @@ const resumeData: ResumeData = {
           ]
         },
         {
-          type: "entry",
-          boldTitle: "DigitalFlow Agency",
-          boldDate: "01/2023 – 04/2023",
-          secondaryTitle: "Junior Front-End Developer, New York, NY",
-          secondaryText: "",
+          paragraph: "",
+          boldLeft: "DigitalFlow Agency",
+          boldRight: "01/2023 – 04/2023",
+          italicLeft: "Junior Front-End Developer, New York, NY",
+          italicRight: "",
           bullets: [
             "Built responsive client websites using HTML5, CSS3, and JavaScript for multiple US-based clients",
             "Implemented Tailwind CSS frameworks across 15+ client projects, ensuring consistent branding",
@@ -53,19 +52,19 @@ const resumeData: ResumeData = {
       title: "EDUCATION",
       items: [
         {
-          type: "entry",
-          boldTitle: "FDC Faisal, Karachi",
-          boldDate: "07/2025",
-          secondaryTitle: "HSSC (Computer Science)",
-          secondaryText: "",
+          paragraph: "",
+          boldLeft: "FDC Faisal, Karachi",
+          boldRight: "07/2025",
+          italicLeft: "HSSC (Computer Science)",
+          italicRight: "",
           bullets: []
         },
         {
-          type: "entry",
-          boldTitle: "University of Gujrat, Gujrat",
-          boldDate: "Expected: 06/2029",
-          secondaryTitle: "BS (Software Engineering)",
-          secondaryText: "",
+          paragraph: "",
+          boldLeft: "University of Gujrat, Gujrat",
+          boldRight: "Expected: 06/2029",
+          italicLeft: "BS (Software Engineering)",
+          italicRight: "",
           bullets: []
         }
       ]
@@ -75,24 +74,10 @@ const resumeData: ResumeData = {
       title: "OTHERS",
       items: [
         {
-          type: "entry",
-          boldTitle: "Skills",
-          boldDate: "",
-          secondaryTitle: "",
-          secondaryText: "",
+          paragraph: "",
           bullets: [
-            "Technical: TypeScript/JavaScript, HTML5, CSS3/Tailwind CSS, Next.js, Vercel, Git & GitHub",
-            "Professional: Problem Solving, Detail Oriented, Solution Oriented"
-          ]
-        },
-        {
-          type: "entry",
-          boldTitle: "Languages",
-          boldDate: "",
-          secondaryTitle: "",
-          secondaryText: "",
-          bullets: [
-            "English (Fluent B2), Urdu (Native C2)"
+            "Technical Skills: TypeScript/JavaScript, HTML5, CSS3/Tailwind CSS, Next.js, Vercel, Git & GitHub",
+            "Languages: English (Fluent B2), Urdu (Native C2)"
           ]
         }
       ]

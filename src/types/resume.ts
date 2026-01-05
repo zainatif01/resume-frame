@@ -5,12 +5,11 @@ export interface ResumeContact {
 }
 
 export interface ResumeItem {
-  type: 'entry' | 'paragraph';
-  content?: string;
-  boldTitle?: string;
-  boldDate?: string;
-  secondaryTitle?: string;
-  secondaryText?: string;
+  paragraph: string;
+  boldLeft?: string;
+  boldRight?: string;
+  italicLeft?: string;
+  italicRight?: string;
   bullets?: string[];
 }
 

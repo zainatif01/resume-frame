@@ -1,0 +1,316 @@
+import { forwardRef, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { FileText, FileIcon, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import jsPDF from "jspdf";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, TabStopType, TabStopPosition } from "docx";
+import { saveAs } from "file-saver";
+import { ResumeData, ResumeContact, ResumeSection as ResumeSectionType, ResumeItem } from "@/types/resume";
+
+// === ResumeHeader ===
+const ResumeHeader = ({ name, contact }: { name: string; contact: ResumeContact }) => {
+  const contactParts = [contact.email, contact.phone, contact.location].filter(Boolean);
+  return (
+    <header className="pb-4 mb-6">
+      <h1 className="text-2xl md:text-3xl font-serif font-bold text-resume-text mb-2">{name}</h1>
+      <p className="text-sm text-resume-text">{contactParts.join(" | ")}</p>
+    </header>
+  );
+};
+
+// === ResumeItemEntry ===
+const ResumeItemEntry = ({ item }: { item: ResumeItem }) => {
+  const hasBoldLine = item.boldLeft || item.boldRight;
+  const hasItalicLine = item.italicLeft || item.italicRight;
+  const hasBullets = item.bullets && item.bullets.length > 0;
+  const hasParagraph = item.paragraph && item.paragraph.trim() !== "";
+
+  return (
+    <div className="space-y-1">
+      {hasParagraph && (
+        <p className="text-sm leading-relaxed text-resume-text">{item.paragraph}</p>
+      )}
+      {hasBoldLine && (
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-0.5">
+          {item.boldLeft && <h4 className="font-semibold text-resume-text">{item.boldLeft}</h4>}
+          {item.boldRight && <span className="font-semibold text-sm text-resume-text whitespace-nowrap">{item.boldRight}</span>}
+        </div>
+      )}
+      {hasItalicLine && (
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-0.5">
+          {item.italicLeft && <span className="text-sm text-resume-text-secondary italic">{item.italicLeft}</span>}
+          {item.italicRight && <span className="text-sm text-resume-text-secondary">{item.italicRight}</span>}
+        </div>
+      )}
+      {hasBullets && (
+        <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+          {item.bullets?.map((bullet, idx) => (
+            <li key={idx} className="text-sm text-resume-text leading-relaxed">{bullet}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+// === ResumeSection ===
+const ResumeSection = ({ section }: { section: ResumeSectionType }) => {
+  return (
+    <section className="mb-5 animate-fade-in">
+      <div className="mb-3">
+        <h3 className="resume-section-title text-base font-bold pb-1 border-b border-resume-text">{section.title}</h3>
+      </div>
+      <div className="space-y-4">
+        {section.items.map((item, index) => (
+          <ResumeItemEntry key={index} item={item} />
+        ))}
+      </div>
+    </section>
+  );
+};
+
+// === ResumePaper ===
+export const ResumePaper = forwardRef<HTMLDivElement, { data: ResumeData }>(({ data }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className="resume-paper w-full max-w-[210mm] mx-auto aspect-[1/1.414] p-8 sm:p-10 md:p-12 rounded-sm overflow-auto font-serif"
+      style={{ minHeight: "auto" }}
+    >
+      <ResumeHeader name={data.name} contact={data.contact} />
+      {data.sections.map((section) => (
+        <ResumeSection key={section.id} section={section} />
+      ))}
+    </div>
+  );
+});
+ResumePaper.displayName = "ResumePaper";
+
+// === ExportModal ===
+interface ExportModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  resumeData: ResumeData;
+}
+
+export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps) => {
+  const [exporting, setExporting] = useState<"pdf" | "docx" | null>(null);
+
+  const exportToPDF = async () => {
+    setExporting("pdf");
+    try {
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 20;
+      const contentWidth = pageWidth - margin * 2;
+      let yPosition = margin;
+
+      pdf.setFont("times", "bold");
+      pdf.setFontSize(18);
+      pdf.text(resumeData.name, margin, yPosition);
+      yPosition += 8;
+
+      pdf.setFontSize(10);
+      pdf.setFont("times", "normal");
+      const contactParts = [resumeData.contact.email, resumeData.contact.phone, resumeData.contact.location].filter(Boolean);
+      pdf.text(contactParts.join(" | "), margin, yPosition);
+      yPosition += 12;
+
+      for (const section of resumeData.sections) {
+        pdf.setFontSize(11);
+        pdf.setFont("times", "bold");
+        pdf.text(section.title.toUpperCase(), margin, yPosition);
+        yPosition += 3;
+        pdf.setLineWidth(0.3);
+        pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+        yPosition += 6;
+
+        pdf.setFontSize(10);
+        for (const item of section.items) {
+          if (item.paragraph && item.paragraph.trim() !== "") {
+            pdf.setFont("times", "normal");
+            const lines = pdf.splitTextToSize(item.paragraph, contentWidth);
+            pdf.text(lines, margin, yPosition);
+            yPosition += lines.length * 4 + 3;
+          }
+
+          if (item.boldLeft || item.boldRight) {
+            pdf.setFont("times", "bold");
+            if (item.boldLeft) pdf.text(item.boldLeft, margin, yPosition);
+            if (item.boldRight) {
+              const dateWidth = pdf.getTextWidth(item.boldRight);
+              pdf.text(item.boldRight, pageWidth - margin - dateWidth, yPosition);
+            }
+            yPosition += 4;
+          }
+
+          if (item.italicLeft || item.italicRight) {
+            pdf.setFont("times", "italic");
+            if (item.italicLeft) pdf.text(item.italicLeft, margin, yPosition);
+            if (item.italicRight) {
+              pdf.setFont("times", "normal");
+              const textWidth = pdf.getTextWidth(item.italicRight);
+              pdf.text(item.italicRight, pageWidth - margin - textWidth, yPosition);
+            }
+            yPosition += 4;
+          }
+
+          if (item.bullets && item.bullets.length > 0) {
+            pdf.setFont("times", "normal");
+            for (const bullet of item.bullets) {
+              const bulletText = `• ${bullet}`;
+              const lines = pdf.splitTextToSize(bulletText, contentWidth - 5);
+              pdf.text(lines, margin + 3, yPosition);
+              yPosition += lines.length * 4;
+            }
+          }
+          yPosition += 2;
+
+          if (yPosition > pdf.internal.pageSize.getHeight() - margin) {
+            pdf.addPage();
+            yPosition = margin;
+          }
+        }
+        yPosition += 3;
+      }
+
+      pdf.save(`${resumeData.name.replace(/\s+/g, "_")}_Resume.pdf`);
+      toast.success("PDF exported successfully!");
+      onOpenChange(false);
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast.error("Failed to export PDF");
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const exportToDocx = async () => {
+    setExporting("docx");
+    try {
+      const children: Paragraph[] = [];
+      const rightTabStop = TabStopPosition.MAX;
+
+      children.push(
+        new Paragraph({
+          children: [new TextRun({ text: resumeData.name, bold: true, size: 36, font: "Times New Roman" })],
+          alignment: AlignmentType.LEFT,
+          spacing: { after: 100 },
+        })
+      );
+
+      const contactParts = [resumeData.contact.email, resumeData.contact.phone, resumeData.contact.location].filter(Boolean);
+      children.push(
+        new Paragraph({
+          children: [new TextRun({ text: contactParts.join(" | "), size: 20, font: "Times New Roman" })],
+          alignment: AlignmentType.LEFT,
+          spacing: { after: 300 },
+        })
+      );
+
+      for (const section of resumeData.sections) {
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: section.title.toUpperCase(), bold: true, size: 22, font: "Times New Roman", color: "000000" })],
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 100 },
+            border: { bottom: { color: "000000", size: 6, style: "single", space: 1 } },
+          })
+        );
+
+        for (const item of section.items) {
+          if (item.paragraph && item.paragraph.trim() !== "") {
+            children.push(
+              new Paragraph({
+                children: [new TextRun({ text: item.paragraph, size: 20, font: "Times New Roman" })],
+                spacing: { after: 100 },
+              })
+            );
+          }
+
+          if (item.boldLeft || item.boldRight) {
+            const titleRuns: TextRun[] = [];
+            if (item.boldLeft) titleRuns.push(new TextRun({ text: item.boldLeft, bold: true, size: 22, font: "Times New Roman" }));
+            if (item.boldRight) {
+              titleRuns.push(new TextRun({ text: "\t", font: "Times New Roman" }));
+              titleRuns.push(new TextRun({ text: item.boldRight, bold: true, size: 22, font: "Times New Roman" }));
+            }
+            children.push(
+              new Paragraph({
+                children: titleRuns,
+                spacing: { before: 150 },
+                tabStops: [{ type: TabStopType.RIGHT, position: rightTabStop }],
+              })
+            );
+          }
+
+          if (item.italicLeft || item.italicRight) {
+            const italicRuns: TextRun[] = [];
+            if (item.italicLeft) italicRuns.push(new TextRun({ text: item.italicLeft, italics: true, size: 20, font: "Times New Roman" }));
+            if (item.italicRight) {
+              italicRuns.push(new TextRun({ text: "\t", font: "Times New Roman" }));
+              italicRuns.push(new TextRun({ text: item.italicRight, size: 20, font: "Times New Roman" }));
+            }
+            children.push(
+              new Paragraph({
+                children: italicRuns,
+                tabStops: [{ type: TabStopType.RIGHT, position: rightTabStop }],
+              })
+            );
+          }
+
+          if (item.bullets && item.bullets.length > 0) {
+            for (const bullet of item.bullets) {
+              children.push(
+                new Paragraph({
+                  children: [new TextRun({ text: bullet, size: 20, font: "Times New Roman" })],
+                  bullet: { level: 0 },
+                  spacing: { after: 50 },
+                })
+              );
+            }
+          }
+        }
+      }
+
+      const doc = new Document({ sections: [{ children }] });
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, `${resumeData.name.replace(/\s+/g, "_")}_Resume.docx`);
+      toast.success("DOCX exported successfully!");
+      onOpenChange(false);
+    } catch (error) {
+      console.error("DOCX export error:", error);
+      toast.error("Failed to export DOCX");
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold">Export Resume</DialogTitle>
+          <DialogDescription>Choose your preferred format to download your resume.</DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-4 py-4">
+          <Button variant="outline" className="h-24 flex-col gap-2 hover:border-primary hover:bg-primary/5" onClick={exportToPDF} disabled={exporting !== null}>
+            {exporting === "pdf" ? <Loader2 className="w-8 h-8 animate-spin" /> : <FileText className="w-8 h-8 text-red-500" />}
+            <span className="font-medium">PDF</span>
+          </Button>
+          <Button variant="outline" className="h-24 flex-col gap-2 hover:border-primary hover:bg-primary/5" onClick={exportToDocx} disabled={exporting !== null}>
+            {exporting === "docx" ? <Loader2 className="w-8 h-8 animate-spin" /> : <FileIcon className="w-8 h-8 text-blue-500" />}
+            <span className="font-medium">DOCX</span>
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
