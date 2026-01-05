@@ -5,8 +5,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { ResumePaper } from "@/components/resume/ResumePaper";
-import { ExportModal } from "@/components/resume/ExportModal";
+import { ResumePaper, ExportModal } from "@/components/resume/Resume";
 import { ResumeData } from "@/types/resume";
 import initialResumeData from "@/data/resumeData";
 
@@ -46,10 +45,7 @@ const Index = () => {
           onTouchCancel={handleLongPressEnd}
         >
           <article>
-            <ResumePaper
-              ref={resumeRef}
-              data={resumeData}
-            />
+            <ResumePaper ref={resumeRef} data={resumeData} />
           </article>
         </ContextMenuTrigger>
         <ContextMenuContent>
@@ -63,7 +59,6 @@ const Index = () => {
         open={exportModalOpen}
         onOpenChange={setExportModalOpen}
         resumeData={resumeData}
-        resumeRef={resumeRef}
       />
     </main>
   );
