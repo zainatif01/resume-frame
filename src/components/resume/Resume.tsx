@@ -25,6 +25,17 @@ const ResumeHeader = ({ name, contact }: { name: string; contact: ResumeContact 
   );
 };
 
+// Helper to parse **bold** text
+const parseBoldText = (text: string) => {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    }
+    return <span key={i}>{part}</span>;
+  });
+};
+
 // === ResumeItemEntry ===
 const ResumeItemEntry = ({ item }: { item: ResumeItem }) => {
   const hasBoldLine = item.boldLeft || item.boldRight;
@@ -50,9 +61,11 @@ const ResumeItemEntry = ({ item }: { item: ResumeItem }) => {
         </div>
       )}
       {hasBullets && (
-        <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+        <ul className="list-outside ml-5 mt-2 space-y-1" style={{ listStyleType: 'disc' }}>
           {item.bullets?.map((bullet, idx) => (
-            <li key={idx} className="text-sm text-resume-text leading-relaxed">{bullet}</li>
+            <li key={idx} className="text-sm text-resume-text leading-relaxed marker:text-resume-text marker:text-lg">
+              {parseBoldText(bullet)}
+            </li>
           ))}
         </ul>
       )}
@@ -88,6 +101,11 @@ export const ResumePaper = forwardRef<HTMLDivElement, { data: ResumeData }>(({ d
       {data.sections.map((section) => (
         <ResumeSection key={section.id} section={section} />
       ))}
+      {data.copyright && (
+        <footer className="mt-8 pt-4 border-t border-resume-border text-center">
+          <p className="text-xs text-resume-text-secondary">{data.copyright}</p>
+        </footer>
+      )}
     </div>
   );
 });
@@ -127,10 +145,10 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
         pdf.setFontSize(11);
         pdf.setFont("times", "bold");
         pdf.text(section.title.toUpperCase(), margin, yPosition);
-        yPosition += 3;
+        yPosition += 4;
         pdf.setLineWidth(0.3);
         pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-        yPosition += 6;
+        yPosition += 8;
 
         pdf.setFontSize(10);
         for (const item of section.items) {
@@ -163,12 +181,56 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
           }
 
           if (item.bullets && item.bullets.length > 0) {
-            pdf.setFont("times", "normal");
             for (const bullet of item.bullets) {
-              const bulletText = `• ${bullet}`;
+              // Parse bold markers for PDF
+              const plainBullet = bullet.replace(/\*\*([^*]+)\*\*/g, "$1");
+              const boldMatches = [...bullet.matchAll(/\*\*([^*]+)\*\*/g)];
+              const boldTexts = boldMatches.map(m => m[1]);
+              
+              const bulletText = `• ${plainBullet}`;
               const lines = pdf.splitTextToSize(bulletText, contentWidth - 5);
-              pdf.text(lines, margin + 3, yPosition);
-              yPosition += lines.length * 4;
+              
+              // Render with bold parts
+              let currentX = margin + 3;
+              for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+                const line = lines[lineIdx];
+                let remaining = line;
+                let xPos = lineIdx === 0 ? margin + 3 : margin + 3;
+                
+                // Check if line contains bold text
+                let hasBold = false;
+                for (const boldText of boldTexts) {
+                  if (remaining.includes(boldText)) {
+                    hasBold = true;
+                    const parts = remaining.split(boldText);
+                    
+                    // Before bold
+                    if (parts[0]) {
+                      pdf.setFont("times", "normal");
+                      pdf.text(parts[0], xPos, yPosition);
+                      xPos += pdf.getTextWidth(parts[0]);
+                    }
+                    
+                    // Bold part
+                    pdf.setFont("times", "bold");
+                    pdf.text(boldText, xPos, yPosition);
+                    xPos += pdf.getTextWidth(boldText);
+                    
+                    // After bold
+                    if (parts[1]) {
+                      pdf.setFont("times", "normal");
+                      pdf.text(parts[1], xPos, yPosition);
+                    }
+                    break;
+                  }
+                }
+                
+                if (!hasBold) {
+                  pdf.setFont("times", "normal");
+                  pdf.text(line, lineIdx === 0 ? margin + 3 : margin + 3, yPosition);
+                }
+                yPosition += 4;
+              }
             }
           }
           yPosition += 2;
@@ -268,9 +330,19 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
 
           if (item.bullets && item.bullets.length > 0) {
             for (const bullet of item.bullets) {
+              // Parse bold markers **text**
+              const textRuns: TextRun[] = [];
+              const parts = bullet.split(/(\*\*[^*]+\*\*)/g);
+              for (const part of parts) {
+                if (part.startsWith("**") && part.endsWith("**")) {
+                  textRuns.push(new TextRun({ text: part.slice(2, -2), bold: true, size: 20, font: "Times New Roman" }));
+                } else if (part) {
+                  textRuns.push(new TextRun({ text: part, size: 20, font: "Times New Roman" }));
+                }
+              }
               children.push(
                 new Paragraph({
-                  children: [new TextRun({ text: bullet, size: 20, font: "Times New Roman" })],
+                  children: textRuns,
                   bullet: { level: 0 },
                   spacing: { after: 50 },
                 })
@@ -301,12 +373,12 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
           <DialogDescription>Choose your preferred format to download your resume.</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 py-4">
-          <Button variant="outline" className="h-24 flex-col gap-2 hover:border-primary hover:bg-primary/5" onClick={exportToPDF} disabled={exporting !== null}>
-            {exporting === "pdf" ? <Loader2 className="w-8 h-8 animate-spin" /> : <FileText className="w-8 h-8 text-red-500" />}
+          <Button variant="outline" className="h-24 flex-col gap-2 hover:border-primary hover:bg-primary/5 hover:text-foreground" onClick={exportToPDF} disabled={exporting !== null}>
+            {exporting === "pdf" ? <Loader2 className="w-8 h-8 animate-spin" aria-hidden="true" /> : <FileText className="w-8 h-8 text-red-500" aria-hidden="true" />}
             <span className="font-medium">PDF</span>
           </Button>
-          <Button variant="outline" className="h-24 flex-col gap-2 hover:border-primary hover:bg-primary/5" onClick={exportToDocx} disabled={exporting !== null}>
-            {exporting === "docx" ? <Loader2 className="w-8 h-8 animate-spin" /> : <FileIcon className="w-8 h-8 text-blue-500" />}
+          <Button variant="outline" className="h-24 flex-col gap-2 hover:border-primary hover:bg-primary/5 hover:text-foreground" onClick={exportToDocx} disabled={exporting !== null}>
+            {exporting === "docx" ? <Loader2 className="w-8 h-8 animate-spin" aria-hidden="true" /> : <FileIcon className="w-8 h-8 text-blue-500" aria-hidden="true" />}
             <span className="font-medium">DOCX</span>
           </Button>
         </div>

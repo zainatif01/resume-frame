@@ -76,13 +76,14 @@ const resumeData: ResumeData = {
         {
           paragraph: "",
           bullets: [
-            "Technical Skills: TypeScript/JavaScript, HTML5, CSS3/Tailwind CSS, Next.js, Vercel, Git & GitHub",
-            "Languages: English (Fluent B2), Urdu (Native C2)"
+            "**Technical Skills:** TypeScript/JavaScript, HTML5, CSS3/Tailwind CSS, Next.js, Vercel, Git & GitHub",
+            "**Languages:** English (Fluent B2), Urdu (Native C2)"
           ]
         }
       ]
     }
-  ]
+  ],
+  copyright: "© 2025 Zain Atif. All rights reserved."
 };
 
 export default resumeData;
