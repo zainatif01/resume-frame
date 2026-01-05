@@ -165,6 +165,9 @@ const calculatePageBreaks = (data: ResumeData) => {
 export const ResumePaper = forwardRef<HTMLDivElement, { data: ResumeData }>(({ data }, ref) => {
   const pages = calculatePageBreaks(data);
   
+  // Track which sections have already been rendered to prevent duplication
+  const renderedSections = new Set<string>();
+  
   // Render content for a specific page range
   const renderPageContent = (pageIndex: number) => {
     const page = pages[pageIndex];
@@ -172,6 +175,12 @@ export const ResumePaper = forwardRef<HTMLDivElement, { data: ResumeData }>(({ d
     
     for (let sIdx = page.startSection; sIdx <= page.endSection; sIdx++) {
       const section = data.sections[sIdx];
+      const sectionKey = `${pageIndex}-${sIdx}`;
+      
+      // Skip if already rendered on this page
+      if (renderedSections.has(sectionKey)) continue;
+      renderedSections.add(sectionKey);
+      
       const startItem = sIdx === page.startSection ? page.startItem : 0;
       const endItem = sIdx === page.endSection ? page.endItem : section.items.length - 1;
       
@@ -213,12 +222,17 @@ export const ResumePaper = forwardRef<HTMLDivElement, { data: ResumeData }>(({ d
       {pages.map((_, pageIndex) => (
         <div
           key={pageIndex}
-          className="resume-paper w-full aspect-[1/1.414] p-8 sm:p-10 md:p-12 rounded-sm mb-6 flex flex-col"
-          style={{ minHeight: "auto" }}
+          className="resume-paper w-full aspect-[1/1.414] rounded-sm mb-6 flex flex-col"
+          style={{ 
+            minHeight: "auto",
+            padding: "clamp(2rem, 7%, 3rem)"
+          }}
         >
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col">
             {pageIndex === 0 && <ResumeHeader name={data.name} contact={data.contact} />}
-            {renderPageContent(pageIndex)}
+            <div className="flex-1">
+              {renderPageContent(pageIndex)}
+            </div>
           </div>
           {pageIndex === pages.length - 1 && data.copyright && (
             <footer className="text-center mt-auto">
@@ -296,12 +310,12 @@ export const ExportModal = ({ open, onOpenChange, resumeData }: ExportModalProps
             pdf.setFont("times", "normal");
             const lines = pdf.splitTextToSize(item.paragraph, contentWidth);
             // Increased line spacing for paragraphs (5.5 instead of 4)
-            const paragraphHeight = lines.length * 5.5;
+            const paragraphHeight = lines.length * 5;
             checkPageBreak(paragraphHeight);
             
             for (let i = 0; i < lines.length; i++) {
               pdf.text(lines[i], margin, yPosition);
-              yPosition += 5.5; // Increased line spacing within paragraph
+              yPosition += 5; // Line spacing within paragraph
             }
             yPosition += 1; // Reduced spacing after paragraph
           }
