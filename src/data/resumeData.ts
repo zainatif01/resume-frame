@@ -85,6 +85,51 @@ const resumeData: ResumeData = {
       ]
     },
     {
+      id: "projects",
+      title: "PROJECTS",
+      items: [
+        {
+          paragraph: "",
+          boldLeft: "FinDash Analytics Platform",
+          boldRight: "Personal Project",
+          italicLeft: "Next.js 14 • TypeScript • Tailwind CSS • Recharts",
+          italicRight: "",
+          bullets: [
+            "Built a comprehensive financial dashboard for visualizing real-time market data and portfolio analytics",
+            "Implemented server-side rendering for optimal SEO and initial load performance",
+            "Created interactive data visualizations using Recharts with real-time WebSocket updates",
+            "Achieved perfect Lighthouse score (100) for performance, accessibility, and best practices"
+          ]
+        },
+        {
+          paragraph: "",
+          boldLeft: "EcoTrack Sustainability App",
+          boldRight: "Open Source Project",
+          italicLeft: "React • TypeScript • Firebase • Material-UI",
+          italicRight: "",
+          bullets: [
+            "Developed a carbon footprint tracking application with gamification elements to encourage sustainable habits",
+            "Integrated Firebase for real-time data synchronization and user authentication",
+            "Designed responsive mobile-first UI with dark/light mode toggle",
+            "Featured in GitHub's trending repositories for 2 weeks with 150+ stars"
+          ]
+        },
+        {
+          paragraph: "",
+          boldLeft: "DevConnect Developer Portfolio Platform",
+          boldRight: "Freelance Project",
+          italicLeft: "Next.js • Tailwind CSS • Vercel • GitHub API",
+          italicRight: "",
+          bullets: [
+            "Created a customizable portfolio platform for developers with GitHub integration",
+            "Implemented automated project showcase pulling live data from GitHub repositories",
+            "Built custom CMS-like functionality for content management without backend",
+            "Deployed on Vercel Edge Network for global performance optimization"
+          ]
+        }
+      ]
+    },
+    {
       id: "education",
       title: "EDUCATION",
       items: [
@@ -113,7 +158,7 @@ const resumeData: ResumeData = {
         {
           paragraph: "",
           bullets: [
-            "**Technical Skills:** TypeScript/JavaScript, HTML5, CSS3/Tailwind CSS, Next.js, React.js, Storybook, Vercel, Git & GitHub, REST APIs",
+            "**Technical Skills:** TypeScript/JavaScript, HTML5, CSS3/Tailwind CSS, Next.js, React.js, Storybook, Vercel, Git & GitHub, REST APIs, WebSocket, Firebase, Recharts, Material-UI",
             "**Certifications:** Next.js 14 Certification (Vercel), Advanced TypeScript (Frontend Masters)",
             "**Languages:** English (Professional Proficiency C1), Urdu (Native C2)"
           ]
