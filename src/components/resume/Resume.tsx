@@ -104,7 +104,7 @@ export const ResumePaper = forwardRef<HTMLDivElement, { data: ResumeData }>(({ d
           <ResumeSection key={sIdx} section={section} />
         ))}
         {data.copyright && (
-          <footer className="text-center mt-6">
+          <footer className="text-center mt-10">
             <p className="text-sm text-resume-text-secondary">{data.copyright}</p>
           </footer>
         )}
