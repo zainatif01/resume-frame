@@ -13,7 +13,7 @@ const resumeData: ResumeData = {
       title: "SUMMARY",
       items: [
         {
-          paragraph: "I am a Front-End Developer with 4+ years of experience building clean, responsive, and user-friendly web interfaces. Specializing in TypeScript, HTML5, CSS3, and Tailwind CSS with expertise in Next.js development. I have focused on creating high-performance, accessible web applications with modern UI/UX principles across international markets."
+          paragraph: "I am a Front-End Developer with 2+ years of experience building clean, responsive, and user-friendly web interfaces. Specializing in TypeScript, HTML5, CSS3, and Tailwind CSS with expertise in Next.js development. I have focused on creating high-performance, accessible web applications with modern UI/UX principles."
         }
       ]
     },
@@ -44,42 +44,6 @@ const resumeData: ResumeData = {
             "Developed and maintained responsive web applications using Next.js and TypeScript for US-based SaaS platform",
             "Implemented custom UI components with Tailwind CSS, improving development efficiency by 30%",
             "Implemented automated testing and CI/CD pipelines using GitHub Actions for seamless deployments"
-          ]
-        },
-        {
-          boldLeft: "DigitalFlow Agency",
-          boldRight: "01/2023 – 04/2023",
-          italicLeft: "Junior Front-End Developer, New York, NY",
-          italicRight: "",
-          paragraph: "",
-          bullets: [
-            "Built responsive client websites using HTML5, CSS3, and JavaScript for multiple US-based clients",
-            "Implemented Tailwind CSS frameworks across 15+ client projects, ensuring consistent branding",
-            "Managed version control using Git/GitHub and deployed projects to Vercel hosting platform"
-          ]
-        },
-        {
-          boldLeft: "CodeCraft Solutions",
-          boldRight: "06/2022 – 12/2022",
-          italicLeft: "Front-End Developer (Remote)",
-          italicRight: "",
-          paragraph: "",
-          bullets: [
-            "Developed responsive e-commerce platforms using React.js and TypeScript for international clients",
-            "Integrated REST APIs and implemented state management using React Context API",
-            "Conducted code reviews and mentored junior developers in front-end best practices"
-          ]
-        },
-        {
-          boldLeft: "WebInnovate Studios",
-          boldRight: "09/2021 – 05/2022",
-          italicLeft: "Web Developer Intern, Lahore, Pakistan",
-          italicRight: "",
-          paragraph: "",
-          bullets: [
-            "Assisted in building and maintaining client websites using HTML5, CSS3, and JavaScript",
-            "Participated in agile development cycles and daily stand-up meetings",
-            "Gained foundational experience in responsive design and cross-browser compatibility"
           ]
         }
       ]
